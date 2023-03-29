@@ -64,7 +64,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(944, 100);
+            this.panel1.Size = new System.Drawing.Size(1005, 100);
             this.panel1.TabIndex = 0;
             // 
             // color_picker
@@ -223,18 +223,19 @@
             // 
             this.panel2.BackColor = System.Drawing.Color.Black;
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 476);
+            this.panel2.Location = new System.Drawing.Point(0, 426);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(944, 27);
+            this.panel2.Size = new System.Drawing.Size(1005, 27);
             this.panel2.TabIndex = 1;
             // 
             // pic
             // 
-            this.pic.BackColor = System.Drawing.Color.White;
+            this.pic.BackColor = System.Drawing.Color.Gainsboro;
             this.pic.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pic.Location = new System.Drawing.Point(0, 0);
             this.pic.Name = "pic";
-            this.pic.Size = new System.Drawing.Size(944, 503);
+            this.pic.Size = new System.Drawing.Size(1005, 453);
+            this.pic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pic.TabIndex = 2;
             this.pic.TabStop = false;
             this.pic.Paint += new System.Windows.Forms.PaintEventHandler(this.pic_Paint);
@@ -247,7 +248,8 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(944, 503);
+            this.AutoSize = true;
+            this.ClientSize = new System.Drawing.Size(1005, 453);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.pic);
@@ -255,6 +257,8 @@
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SDP_02";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.color_picker)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pic)).EndInit();

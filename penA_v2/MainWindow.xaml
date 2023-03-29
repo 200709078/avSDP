@@ -1,0 +1,19 @@
+﻿<Window Name="mainWin" x:FieldModifier="public" x:Class="penA_v2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:penA_v2"
+        mc:Ignorable="d"
+        Title="penA - made by mADEMatik" Height="450" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+    <Grid x:Name="mainGrid">
+        <Frame x:Name="frameMain" x:FieldModifier="public" Background="AliceBlue" NavigationUIVisibility="Hidden"/>
+        <StackPanel x:Name="stckTop" Orientation="Horizontal" Height="50" VerticalAlignment="Top" Margin="10">
+            <Button x:Name="btnBoard" Style="{StaticResource roundButton}" Content="Board" Click="btnBoard_Click"/>
+        </StackPanel>
+        <StackPanel x:Name="stckBottom" Orientation="Horizontal" Height="50" VerticalAlignment="Bottom" Margin="10">
+            <Button x:Name="btnMainPage" VerticalAlignment="Center" Style="{StaticResource roundButton}" Content="Main" Click="btnMainPage_Click"/>
+            <Button x:Name="btnSS" VerticalAlignment="Center" Style="{StaticResource roundButton}" Content="SS" Click="btnSS_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

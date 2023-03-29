@@ -16,11 +16,11 @@ namespace sdp_02
         public Form1()
         {
             InitializeComponent();
-            this.Width = 950;
-            this.Height = 700;
-            bm = new Bitmap(pic.Width, pic.Height);
+            //this.Width = 950;
+            //this.Height = 700;
+            bm = new Bitmap(this.Width, this.Height);
             g= Graphics.FromImage(bm); 
-            g.Clear(Color.White);
+            g.Clear(Color.LightGray);
             pic.Image = bm;
 
         }
@@ -28,7 +28,7 @@ namespace sdp_02
         Graphics g;
         bool paint = false;
         Point px, py;
-        Pen p = new Pen(Color.Black,1);
+        Pen p = new Pen(Color.Black,3);
         Pen er= new Pen(Color.White, 10);
         int index, x, y, sx, sy, cx, cy;
 
@@ -136,6 +136,11 @@ namespace sdp_02
             index = 6;
         }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
         private void pic_MouseUp(object sender, MouseEventArgs e)
         {
             paint=false;
@@ -145,7 +150,7 @@ namespace sdp_02
 
             if (index==3)
             {
-                g.DrawEllipse(p, cx,cy,sx,sy);
+                g.DrawEllipse(p,cx,cy,sx,sy);
             }
             if (index == 4)
             {

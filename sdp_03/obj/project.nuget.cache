@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "7DLhIL1kTm7MhPwzxXKWMetL8/mptyac4MWgIKFbrWjC0MOlXOshvl0JU5j6aMbBvTLJ1uymWKEWoqeEKSMbRA==",
+  "dgSpecHash": "J52bNW7G7KyrlTvcFLS86u+2EyXooef7J81xMPJ5UQ73PPx5XVvkPxoDeNSpqR817RO71/bAKg4I16rRMa63DQ==",
   "success": true,
-  "projectFilePath": "C:\\avLER\\avsdp\\sdp_03\\sdp_03.csproj",
+  "projectFilePath": "C:\\avLER\\avSDP\\sdp_03\\sdp_03.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

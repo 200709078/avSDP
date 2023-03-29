@@ -1,0 +1,15 @@
+﻿<Window x:Class="shapeTry.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:shapeTry"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" WindowStartupLocation="CenterScreen" WindowStyle="SingleBorderWindow">
+    <Grid x:Name="mainGrid"  >
+        <Canvas x:Name="CanvasImplant" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MouseMove="MovShp_MouseMove"  MouseUp="MovShp_MouseUp" Background="Transparent">
+            <Rectangle Canvas.Left="10" Canvas.Top="20" x:Name="MovableShape" Fill="Transparent"  Opacity="0.85" Width="93" Height="62" Stroke="Black" 
+                   StrokeThickness="1" MouseDown="MovShp_MouseDown" />
+        </Canvas>
+    </Grid>
+</Window>
