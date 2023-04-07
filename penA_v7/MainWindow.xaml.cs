@@ -1,6 +1,10 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,13 +14,15 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static System.Net.Mime.MediaTypeNames;
 
-namespace penA_v6
+namespace penA_v7
 {
     public partial class MainWindow : Window
     {
-        public static Stack<DoStroke> RedoStrokes { get; set; }
-        public static Stack<DoStroke> UndoStrokes { get; set; }
+        public static Stack<Object> stackUndo = new Stack<Object>();
+        public static Stack<Object> stackRedo = new Stack<Object>();
+
 
         public static Boolean handle = true;
         public static Boolean draw = false;
@@ -37,34 +43,133 @@ namespace penA_v6
         public MainWindow()
         {
             InitializeComponent();
-            RedoStrokes = new Stack<DoStroke>();
-            UndoStrokes = new Stack<DoStroke>();
             inkBoard.Strokes.StrokesChanged += Strokes_StrokesChanged;
 
             stckDraw.Visibility = Visibility.Hidden;
-            stckFiles.Visibility = Visibility.Hidden;
             inkBoard.Visibility = Visibility.Hidden;
             inkBoard.DefaultDrawingAttributes.Color = Colors.Red;
             inkBoard.DefaultDrawingAttributes.Width = 2;
             if (!Directory.Exists("drawings"))
             {
                 Directory.CreateDirectory("drawings");
+                Directory.CreateDirectory("drawings/tempimg");
+
+            }
+            else
+            {
+                if (!Directory.Exists("drawings/tempimg"))
+                {
+                    Directory.CreateDirectory("drawings/tempimg");
+                }
             }
             refreshFiles();
         }
         private void Strokes_StrokesChanged(object sender, System.Windows.Ink.StrokeCollectionChangedEventArgs e)
         {
-            if (handle)
+            if (handle && inkBoard.EditingMode == InkCanvasEditingMode.Ink)
             {
-                RedoStrokes.Push(new DoStroke
-                {
-                    ActionFlag = e.Added.Count > 0 ? "ADD" : "REMOVE",
-                    Stroke = e.Added.Count > 0 ? e.Added[0] : e.Removed[0],
-                });
+                stackUndo.Push(e.Added[0]);
             }
         }
-        private void btnDraw_Click(object sender, RoutedEventArgs e)
+        private void btnUndo_Click(object sender, RoutedEventArgs e)
         {
+            handle = false;
+
+            btnRedo.Style = (Style)FindResource("roundButton");
+            if (stackUndo.Count == 1)
+            {
+                btnUndo.Style = (Style)FindResource("roundButtonGray");
+            }
+
+            if (stackUndo.Count > 0)
+            {
+                Object obj = new object();
+                obj = stackUndo.Pop();
+                if (obj.GetType().ToString() == "System.Windows.Ink.Stroke")
+                {
+                    Stroke stroke = obj as Stroke;
+                    stackRedo.Push(stroke);
+                    inkBoard.Strokes.Remove(stroke);
+                }
+                else if (obj.GetType().ToString() == "System.Windows.Shapes.Line")
+                {
+                    Line line = obj as Line;
+                    stackRedo.Push(line);
+                    inkBoard.Children.Remove(line);
+                }
+                else if (obj.GetType().ToString() == "System.Windows.Shapes.Rectangle")
+                {
+                    Rectangle rect = obj as Rectangle;
+                    stackRedo.Push(rect);
+                    inkBoard.Children.Remove(rect);
+                }
+                else if (obj.GetType().ToString() == "System.Windows.Shapes.Ellipse")
+                {
+                    Ellipse elli = obj as Ellipse;
+                    stackRedo.Push(elli);
+                    inkBoard.Children.Remove(elli);
+                }
+                else
+                {
+                    System.Windows.Controls.Image img = obj as System.Windows.Controls.Image;
+                    stackRedo.Push(img);
+                    inkBoard.Children.Remove(img);
+                }
+            }
+            handle = true;
+        }
+
+        private void btnRedo_Click(object sender, RoutedEventArgs e)
+        {
+            handle = false;
+
+            btnUndo.Style = (Style)FindResource("roundButton");
+            if (stackRedo.Count == 1)
+            {
+                btnRedo.Style = (Style)FindResource("roundButtonGray");
+            }
+
+            if (stackRedo.Count > 0)
+            {
+                Object obj = new object();
+                obj = stackRedo.Pop();
+                if (obj.GetType().ToString() == "System.Windows.Ink.Stroke")
+                {
+                    Stroke stroke = obj as Stroke;
+                    stackUndo.Push(stroke);
+                    inkBoard.Strokes.Add(stroke);
+                }
+                else if (obj.GetType().ToString() == "System.Windows.Shapes.Line")
+                {
+                    Line line = obj as Line;
+                    stackUndo.Push(line);
+                    inkBoard.Children.Add(line);
+                }
+                else if (obj.GetType().ToString() == "System.Windows.Shapes.Rectangle")
+                {
+                    Rectangle rect = obj as Rectangle;
+                    stackUndo.Push(rect);
+                    inkBoard.Children.Add(rect);
+                }
+                else if (obj.GetType().ToString() == "System.Windows.Shapes.Ellipse")
+                {
+                    Ellipse elli = obj as Ellipse;
+                    stackUndo.Push(elli);
+                    inkBoard.Children.Add(elli);
+                }
+                else
+                {
+                    System.Windows.Controls.Image img = obj as System.Windows.Controls.Image;
+                    stackUndo.Push(img);
+                    inkBoard.Children.Add(img);
+                }
+            }
+            handle = true;
+        }
+
+        private void btnNewDrawing_Click(object sender, RoutedEventArgs e)
+        {
+            handle = false;
             draw = false;
             stckDraw.Visibility = Visibility.Visible;
             stckMain.Visibility = Visibility.Hidden;
@@ -81,23 +186,26 @@ namespace penA_v6
             btnUndo.Style = (Style)FindResource("roundButtonGray");
             btnRedo.Style = (Style)FindResource("roundButtonGray");
             btnClear.Style = (Style)FindResource("roundButtonGray");
+            handle = true;
         }
 
         private void btnMainPage_Click(object sender, RoutedEventArgs e)
         {
+            handle = false;
             saveDraw();
             refreshFiles();
             stckMain.Visibility = Visibility.Visible;
             stckDraw.Visibility = Visibility.Hidden;
             inkBoard.Visibility = Visibility.Hidden;
 
-            UndoStrokes.Clear();
-            RedoStrokes.Clear();
+            stackUndo.Clear();
+            stackRedo.Clear();
             activeFilePath = null;
 
             btnUndo.Style = (Style)FindResource("roundButtonGray");
             btnRedo.Style = (Style)FindResource("roundButtonGray");
             btnClear.Style = (Style)FindResource("roundButtonGray");
+            handle = true;
         }
         public void saveDraw()
         {
@@ -123,7 +231,17 @@ namespace penA_v6
         }
         public void refreshFiles()
         {
+            handle = false;
             stckFiles.Children.Clear();
+
+            Button btnNew = new Button();
+            btnNew.Content = "NEW DRAWING";
+            btnNew.Width = 120;
+            btnNew.Height = 80;
+            btnNew.Style = (Style)FindResource("roundButtonBlue");
+            btnNew.Click += btnNewDrawing_Click;
+            stckFiles.Children.Add(btnNew);
+
             filesCount = new DirectoryInfo(filesPath).GetFiles("*.xaml").Length;
             if (filesCount > 0)
             {
@@ -145,7 +263,7 @@ namespace penA_v6
                     RenderTargetBitmap renderBitmap = new RenderTargetBitmap((int)size.Width, (int)size.Height, 96d, 96d, PixelFormats.Pbgra32);
                     renderBitmap.Render(savedCanvas);
 
-                    Image img = new Image();
+                    System.Windows.Controls.Image img = new System.Windows.Controls.Image();
                     img.Source = renderBitmap;
                     img.Width = 80;
                     TextBlock textBlock = new TextBlock();
@@ -162,42 +280,58 @@ namespace penA_v6
                     button.Width = 120;
                     button.Height = 80;
                     button.Style = (Style)FindResource("roundButtonBlue");
+                    //button.ContextMenu = (ContextMenu)FindResource("MyContextMenu");
                     stckFiles.Children.Add(button);
                 }
             }
+            handle = true;
         }
 
         private void button_Button_Click(object sender, RoutedEventArgs e)
         {
+            handle = false;
             stckDraw.Visibility = Visibility.Visible;
             stckMain.Visibility = Visibility.Hidden;
             inkBoard.Visibility = Visibility.Visible;
+            btnDelete.Visibility = Visibility.Visible;
             inkBoard.UseCustomCursor = true;
             inkBoard.Cursor = Cursors.Pen;
+            btnMode.Content = "Pen";
+            btnShape.Content = "Line";
+            btnShape.Style = (Style)FindResource("roundButtonGray");
+
+            inkBoard.EditingMode = InkCanvasEditingMode.Ink;
+            inkBoard.DefaultDrawingAttributes.Color = Colors.Red;
+            inkBoard.DefaultDrawingAttributes.Width = 2;
+            btnColor.Style = (Style)FindResource("roundButtonRed");
+            btnSize.Content = "Size 2";
+
 
             activeFilePath = filesPath + (((e.OriginalSource as Button).Content as StackPanel).Children[1] as TextBlock).Text + ".xaml";
             FileStream fs = File.Open(activeFilePath, FileMode.Open, FileAccess.Read);
             InkCanvas savedCanvas = XamlReader.Load(fs) as InkCanvas;
             fs.Close();
             inkBoard.Strokes = savedCanvas.Strokes;
-            inkBoard.Strokes.StrokesChanged += Strokes_StrokesChanged;
 
-            foreach (Stroke stroke in inkBoard.Strokes)
+            var childrenList = savedCanvas.Children.Cast<UIElement>().ToArray();
+            foreach (var c in childrenList)
             {
-                RedoStrokes.Push(new DoStroke
-                {
-                    ActionFlag = "ADD",
-                    Stroke = stroke
-                });
+                savedCanvas.Children.Remove(c);
+                inkBoard.Children.Add(c);
             }
 
-            btnUndo.Style = (Style)FindResource("roundButtonBlue");
+            inkBoard.Strokes.StrokesChanged += Strokes_StrokesChanged;
+
+            btnUndo.Style = (Style)FindResource("roundButtonGray");
             btnRedo.Style = (Style)FindResource("roundButtonGray");
             btnClear.Style = (Style)FindResource("roundButtonGray");
+
+            handle = true;
         }
 
         private void btnColor_Click(object sender, RoutedEventArgs e)
         {
+            handle = false;
             if (inkBoard.DefaultDrawingAttributes.Color == Colors.Red)
             {
                 inkBoard.DefaultDrawingAttributes.Color = Colors.DarkBlue;
@@ -213,10 +347,12 @@ namespace penA_v6
                 inkBoard.DefaultDrawingAttributes.Color = Colors.Red;
                 btnColor.Style = (Style)FindResource("roundButtonRed");
             }
+            handle = true;
         }
 
         private void btnSize_Click(object sender, RoutedEventArgs e)
         {
+            handle = false;
             if (inkBoard.DefaultDrawingAttributes.Width == 2)
             {
                 inkBoard.DefaultDrawingAttributes.Width = 4;
@@ -232,9 +368,11 @@ namespace penA_v6
                 inkBoard.DefaultDrawingAttributes.Width = 2;
                 btnSize.Content = "Size 2";
             }
+            handle = true;
         }
         private void btnMode_Click(object sender, RoutedEventArgs e)
         {
+            handle = false;
             if (btnMode.Content.Equals("Pen"))
             {
                 btnMode.Content = "Eraser";
@@ -268,9 +406,11 @@ namespace penA_v6
                 btnShape.Style = (Style)FindResource("roundButtonGray");
                 draw = false;
             }
+            handle = true;
         }
         private void btnShape_Click(object sender, RoutedEventArgs e)
         {
+            handle = false;
             if (btnShape.Content.Equals("Line"))
             {
                 btnShape.Content = "Rect";
@@ -283,8 +423,8 @@ namespace penA_v6
             {
                 btnShape.Content = "Line";
             }
+            handle = true;
         }
-
         private void btnSS_Click(object sender, RoutedEventArgs e)
         {
             if (imgSS.Visibility == Visibility.Hidden)
@@ -294,181 +434,44 @@ namespace penA_v6
                 btnColor.Visibility = Visibility.Hidden;
                 btnMode.Visibility = Visibility.Hidden;
                 btnShape.Visibility = Visibility.Hidden;
+                btnSS.Visibility = Visibility.Hidden;
+                btnPicture.Visibility = Visibility.Hidden;
                 btnUndo.Visibility = Visibility.Hidden;
                 btnRedo.Visibility = Visibility.Hidden;
                 btnClear.Visibility = Visibility.Hidden;
 
+                canSS.Visibility = Visibility.Visible;
                 inkBoard.Visibility = Visibility.Hidden;
                 this.WindowStyle = WindowStyle.None;
                 this.Hide();
-                Thread.Sleep(500);
+                Thread.Sleep(100);
                 System.Windows.Forms.SendKeys.SendWait("{PRTSC}");
-                imgSS.Source = Clipboard.GetImage();
-                Clipboard.Clear();
-                imgSS.Visibility = Visibility.Visible;
 
+                imgSS.Source = Clipboard.GetImage();
+                imgSS.Visibility = Visibility.Visible;
                 this.Show();
             }
-            else
-            {
-                btnMainPage.Visibility = Visibility.Visible;
-                btnSize.Visibility = Visibility.Visible;
-                btnColor.Visibility = Visibility.Visible;
-                btnMode.Visibility = Visibility.Visible;
-                btnShape.Visibility = Visibility.Visible;
-                btnUndo.Visibility = Visibility.Visible;
-                btnRedo.Visibility = Visibility.Visible;
-                btnClear.Visibility = Visibility.Visible;
-                this.WindowStyle = WindowStyle.SingleBorderWindow;
-                imgSS.Visibility = Visibility.Hidden;
-                imgSS.Source = null;
-                inkBoard.Visibility = Visibility.Visible;
-
-                Image nimg=new Image();
-                nimg.Source = new BitmapImage( new Uri("/images/penA.ico",UriKind.Relative));
-                nimg.Width = 100;
-                nimg.Height = 100;
-
-
-                inkBoard.Children.Add(nimg);
-
-
-
-            }
         }
-
-        private void btnUndo_Click(object sender, RoutedEventArgs e)
-        {
-            handle = false;
-            btnRedo.Style = (Style)FindResource("roundButton");
-
-            if (RedoStrokes.Count > 0)
-            {
-                DoStroke @do = RedoStrokes.Pop();
-                if (@do.ActionFlag.Equals("ADD"))
-                {
-                    inkBoard.Strokes.Remove(@do.Stroke);
-                }
-                else
-                {
-                    inkBoard.Strokes.Add(@do.Stroke);
-                }
-
-                UndoStrokes.Push(@do);
-            }
-            if (inkBoard.Strokes.Count == 0)
-            {
-                btnUndo.Style = (Style)FindResource("roundButtonGray");
-                btnClear.Style = (Style)FindResource("roundButtonGray");
-            }
-            handle = true;
-        }
-
-        private void btnRedo_Click(object sender, RoutedEventArgs e)
-        {
-            handle = false;
-            btnUndo.Style = (Style)FindResource("roundButton");
-            btnClear.Style = (Style)FindResource("roundButton");
-
-            if (UndoStrokes.Count > 0)
-            {
-                DoStroke @do = UndoStrokes.Pop();
-                RedoStrokes.Push(@do);
-
-                if (@do.ActionFlag.Equals("ADD"))
-                {
-                    inkBoard.Strokes.Add(@do.Stroke);
-                }
-                else
-                {
-                    inkBoard.Strokes.Remove(@do.Stroke);
-                }
-            }
-            if (UndoStrokes.Count == 0)
-            {
-                btnRedo.Style = (Style)FindResource("roundButtonGray");
-            }
-            handle = true;
-        }
-
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
+            handle = false;
             inkBoard.Strokes.Clear();
             inkBoard.Children.Clear();
-            UndoStrokes.Clear();
-            RedoStrokes.Clear();
+            stackUndo.Clear();
+            stackRedo.Clear();
 
             btnUndo.Style = (Style)FindResource("roundButtonGray");
             btnClear.Style = (Style)FindResource("roundButtonGray");
             btnRedo.Style = (Style)FindResource("roundButtonGray");
+            handle = true;
         }
-
         private void inkBoard_MouseUp(object sender, MouseButtonEventArgs e)
         {
             draw = false;
             haveDrawing = true;
             endPoint = e.GetPosition(inkBoard);
             btnUndo.Style = (Style)FindResource("roundButton");
-
-            if (inkBoard.EditingMode == InkCanvasEditingMode.Ink)
-            {
-                btnRedo.Style = (Style)FindResource("roundButtonGray");
-            }
             btnClear.Style = (Style)FindResource("roundButton");
-            UndoStrokes.Clear();
-
-            if (btnMode.Content.Equals("Shape"))
-            {
-                if (btnShape.Content.Equals("Rect"))
-                {
-                    Stroke rectStroke = new Stroke(new StylusPointCollection(new List<Point>
-                    {
-                        new Point(InkCanvas.GetLeft(rect),InkCanvas.GetTop(rect)),
-                        new Point(InkCanvas.GetLeft(rect)+rect.Width,InkCanvas.GetTop(rect)),
-                        new Point(InkCanvas.GetLeft(rect)+rect.Width,InkCanvas.GetTop(rect)+rect.Height),
-                        new Point(InkCanvas.GetLeft(rect),InkCanvas.GetTop(rect)+rect.Height),
-                        new Point(InkCanvas.GetLeft(rect),InkCanvas.GetTop(rect))
-                    }));
-                    inkBoard.Children.Remove(rect);
-                    rectStroke.DrawingAttributes.Color = ((SolidColorBrush)btnColor.Background).Color;
-                    rectStroke.DrawingAttributes.Width = inkBoard.DefaultDrawingAttributes.Width;
-                    rectStroke.DrawingAttributes.Height = inkBoard.DefaultDrawingAttributes.Width;
-                    inkBoard.Strokes.Add(rectStroke);
-
-                }
-                if (btnShape.Content.Equals("Circle"))
-                {
-                    StylusPointCollection points = new StylusPointCollection();
-                    Point center = new Point((strtPoint.X + endPoint.X) / 2, (strtPoint.Y + endPoint.Y) / 2);
-                    double radiusX = shapeWidth / 2;
-                    double radiusY = shapeHeight / 2;
-                    for (int i = 0; i <= 360; i += 5)
-                    {
-                        double angle = i * Math.PI / 180;
-                        double x = center.X + radiusX * Math.Cos(angle);
-                        double y = center.Y + radiusY * Math.Sin(angle);
-                        points.Add(new StylusPoint(x, y));
-                    }
-                    Stroke stroke = new Stroke(points);
-                    inkBoard.Children.Remove(elli);
-                    Stroke elliStroke = new Stroke(points);
-                    elliStroke.DrawingAttributes.Color = ((SolidColorBrush)btnColor.Background).Color;
-                    elliStroke.DrawingAttributes.Width = inkBoard.DefaultDrawingAttributes.Width;
-                    elliStroke.DrawingAttributes.Height = inkBoard.DefaultDrawingAttributes.Height;
-                    inkBoard.Strokes.Add(elliStroke);
-                }
-                if (btnShape.Content.Equals("Line"))
-                {
-                    Stroke lineStroke = new Stroke(new StylusPointCollection(new List<Point>
-                    {
-                        strtPoint,endPoint
-                    }));
-                    inkBoard.Children.Remove(line);
-                    lineStroke.DrawingAttributes.Color = ((SolidColorBrush)btnColor.Background).Color;
-                    lineStroke.DrawingAttributes.Width = inkBoard.DefaultDrawingAttributes.Width;
-                    inkBoard.Strokes.Add(lineStroke);
-                }
-            }
         }
         private void inkBoard_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -480,16 +483,19 @@ namespace penA_v6
                 {
                     rect = new Rectangle();
                     inkBoard.Children.Add(rect);
+                    stackUndo.Push(rect);
                 }
                 if (btnShape.Content.Equals("Circle"))
                 {
                     elli = new Ellipse();
                     inkBoard.Children.Add(elli);
+                    stackUndo.Push(elli);
                 }
                 if (btnShape.Content.Equals("Line"))
                 {
                     line = new Line();
                     inkBoard.Children.Add(line);
+                    stackUndo.Push(line);
                 }
             }
         }
@@ -566,10 +572,165 @@ namespace penA_v6
         {
             saveDraw();
         }
-    }
-    public struct DoStroke
-    {
-        public string ActionFlag { get; set; }
-        public System.Windows.Ink.Stroke Stroke { get; set; }
+
+        private void canSS_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            endPoint = e.GetPosition(canSS);
+            draw = false;
+
+            btnMainPage.Visibility = Visibility.Visible;
+            btnSize.Visibility = Visibility.Visible;
+            btnColor.Visibility = Visibility.Visible;
+            btnMode.Visibility = Visibility.Visible;
+            btnShape.Visibility = Visibility.Visible;
+            btnSS.Visibility = Visibility.Visible;
+            btnPicture.Visibility = Visibility.Visible;
+            btnUndo.Visibility = Visibility.Visible;
+            btnRedo.Visibility = Visibility.Visible;
+            btnClear.Visibility = Visibility.Visible;
+            this.WindowStyle = WindowStyle.SingleBorderWindow;
+            imgSS.Visibility = Visibility.Hidden;
+            imgSS.Source = null;
+            inkBoard.Visibility = Visibility.Visible;
+            canSS.Visibility = Visibility.Hidden;
+
+            System.Windows.Controls.Image cimg = new System.Windows.Controls.Image();
+            CroppedBitmap cBitMap = new CroppedBitmap((BitmapSource)Clipboard.GetImage(), new Int32Rect((int)Canvas.GetLeft(rect), (int)Canvas.GetTop(rect), (int)rect.Width, (int)rect.Height));
+            Clipboard.Clear();
+
+            BitmapEncoder encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(cBitMap));
+
+            String datetime = DateTime.Now.ToString("yyMMdd_HHmmss");
+            String addFilesPath = filesPath + "/tempimg/" + datetime + ".bmp";
+
+            using (var fileStream = new System.IO.FileStream(addFilesPath, System.IO.FileMode.Create))
+            {
+                encoder.Save(fileStream);
+                fileStream.Close();
+            }
+
+            System.Windows.Controls.Image cimG = new System.Windows.Controls.Image();
+            cimg.Source = new BitmapImage(new Uri(addFilesPath, UriKind.Absolute));
+            cimg.Margin = new Thickness(10);
+            inkBoard.Children.Add(cimg);
+            haveDrawing = true;
+            stackUndo.Push(cimg);
+            btnUndo.Style = (Style)FindResource("roundButton");
+            btnClear.Style = (Style)FindResource("roundButton");
+            canSS.Children.Remove(rect);
+        }
+        private void canSS_MouseMove(object sender, MouseEventArgs e)
+        {
+            endPoint = e.GetPosition(canSS);
+            shapeWidth = Math.Abs(endPoint.X - strtPoint.X);
+            shapeHeight = Math.Abs(endPoint.Y - strtPoint.Y);
+
+            if (draw)
+            {
+                rect.Stroke = Brushes.Red;
+                rect.StrokeThickness = 2;
+                rect.Width = shapeWidth;
+                rect.Height = shapeHeight;
+                if (strtPoint.X <= endPoint.X)
+                {
+                    Canvas.SetLeft(rect, strtPoint.X);
+                }
+                else
+                {
+                    Canvas.SetLeft(rect, endPoint.X);
+                }
+
+                if (strtPoint.Y <= endPoint.Y)
+                {
+                    Canvas.SetTop(rect, endPoint.Y - shapeHeight);
+                }
+                else
+                {
+                    Canvas.SetTop(rect, endPoint.Y);
+                }
+            }
+        }
+        private void canSS_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            draw = true;
+            strtPoint = e.GetPosition(canSS);
+            rect = new Rectangle();
+            canSS.Children.Add(rect);
+        }
+
+        private void btnPicture_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png";
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.Multiselect = false;
+            if (openFileDialog.ShowDialog() == true)
+            {
+                System.Windows.Controls.Image addImage = new System.Windows.Controls.Image();
+                BitmapImage bitmap = new BitmapImage(new Uri(openFileDialog.FileName));
+
+                BitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmap));
+
+                String datetime = DateTime.Now.ToString("yyMMdd_HHmmss");
+                String ssFilesPath = filesPath + "/tempimg/" + datetime + ".bmp";
+
+                using (var fileStream = new System.IO.FileStream(ssFilesPath, System.IO.FileMode.Create))
+                {
+                    encoder.Save(fileStream);
+                    fileStream.Close();
+                }
+
+                addImage.Source = new BitmapImage(new Uri(ssFilesPath));
+                if (bitmap.PixelHeight > ActualHeight)
+                {
+                    addImage.Height = ActualHeight - stckDraw.Height * 2;
+                }
+
+                inkBoard.Children.Add(addImage);
+                stackUndo.Push(addImage);
+                btnUndo.Style = (Style)FindResource("roundButton");
+                btnClear.Style = (Style)FindResource("roundButton");
+                haveDrawing = true;
+            }
+        }
+
+        private void btnDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Do you really want to delete file? " + filesPath, "FILE DELETE", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                handle = false;
+                FileStream fs = File.Open(activeFilePath, FileMode.Open, FileAccess.Read);
+                InkCanvas savedCanvas = XamlReader.Load(fs) as InkCanvas;
+                fs.Close();
+                var childrenList = savedCanvas.Children.Cast<UIElement>().ToArray();
+                File.Delete(System.IO.Path.Combine(filesPath, activeFilePath.Substring(activeFilePath.Length - 18, 18)));
+
+                inkBoard.Children.Clear();
+                savedCanvas.Children.Clear();
+                stackUndo.Clear();
+                stackRedo.Clear();
+                refreshFiles();
+
+                //foreach (var c in childrenList)
+                //{
+                //    if (c.GetType().ToString().Equals("System.Windows.Controls.Image"))
+                //    {
+                //        System.Windows.Controls.Image img = c as System.Windows.Controls.Image;
+                //        File.Delete(System.IO.Path.Combine(filesPath + "tempimg\\", img.Source.ToString().Substring(img.Source.ToString().Length - 17, 17)));
+                //    }
+                //}
+
+                stckMain.Visibility = Visibility.Visible;
+                stckDraw.Visibility = Visibility.Hidden;
+                inkBoard.Visibility = Visibility.Hidden;
+                activeFilePath = null;
+                btnUndo.Style = (Style)FindResource("roundButtonGray");
+                btnRedo.Style = (Style)FindResource("roundButtonGray");
+                btnClear.Style = (Style)FindResource("roundButtonGray");
+                handle = true;
+            }
+        }
     }
 }

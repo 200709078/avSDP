@@ -1,0 +1,17 @@
+C:\avLER\avSDP\penA_v7\bin\Debug\penA_v7.exe.config
+C:\avLER\avSDP\penA_v7\bin\Debug\penA_v7.exe
+C:\avLER\avSDP\penA_v7\bin\Debug\penA_v7.pdb
+C:\avLER\avSDP\penA_v7\obj\Debug\penA_v7.csproj.AssemblyReference.cache
+C:\avLER\avSDP\penA_v7\obj\Debug\penA_v7.csproj.SuggestedBindingRedirects.cache
+C:\avLER\avSDP\penA_v7\obj\Debug\MainWindow.g.cs
+C:\avLER\avSDP\penA_v7\obj\Debug\App.g.cs
+C:\avLER\avSDP\penA_v7\obj\Debug\penA_v7_MarkupCompile.cache
+C:\avLER\avSDP\penA_v7\obj\Debug\penA_v7_MarkupCompile.lref
+C:\avLER\avSDP\penA_v7\obj\Debug\App.baml
+C:\avLER\avSDP\penA_v7\obj\Debug\MainWindow.baml
+C:\avLER\avSDP\penA_v7\obj\Debug\penA_v7.g.resources
+C:\avLER\avSDP\penA_v7\obj\Debug\penA_v7.Properties.Resources.resources
+C:\avLER\avSDP\penA_v7\obj\Debug\penA_v7.csproj.GenerateResource.cache
+C:\avLER\avSDP\penA_v7\obj\Debug\penA_v7.csproj.CoreCompileInputs.cache
+C:\avLER\avSDP\penA_v7\obj\Debug\penA_v7.exe
+C:\avLER\avSDP\penA_v7\obj\Debug\penA_v7.pdb
