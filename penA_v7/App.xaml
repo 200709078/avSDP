@@ -4,23 +4,33 @@
              xmlns:local="clr-namespace:penA_v7"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <!--<ContextMenu x:Key="MyContextMenu">
-            <MenuItem Header="Delete" Click="Delete_Click">
-                <MenuItem.Icon>
-                    <Image Source="/images/penA.ico"/>
-                </MenuItem.Icon>
-            </MenuItem>
-            <MenuItem Header="Open" Click="Open_Click">
-                <MenuItem.Icon>
-                    <Image Source="/images/penA.ico"/>
-                </MenuItem.Icon>
-            </MenuItem>
-        </ContextMenu>-->
+        <Image x:Key="line" Source="/images/line.png" Width="40"/>
+        <Image x:Key="rect" Source="/images/rect.png" Width="35"/>
+        <Image x:Key="elli" Source="/images/elli.png" Width="40"/>
+        <Image x:Key="poly" Source="/images/poly.png" Width="40"/>
+        <Image x:Key="red" Source="/images/red.png" Width="40"/>
+        <Image x:Key="blue" Source="/images/blue.png" Width="40"/>
+        <Image x:Key="black" Source="/images/black.png" Width="40"/>
+        <Image x:Key="red2" Source="/images/red2.png" Width="40"/>
+        <Image x:Key="red4" Source="/images/red4.png" Width="40"/>
+        <Image x:Key="red6" Source="/images/red6.png" Width="40"/>
+        <Image x:Key="blue2" Source="/images/blue2.png" Width="40"/>
+        <Image x:Key="blue4" Source="/images/blue4.png" Width="40"/>
+        <Image x:Key="blue6" Source="/images/blue6.png" Width="40"/>
+        <Image x:Key="black2" Source="/images/black2.png" Width="40"/>
+        <Image x:Key="black4" Source="/images/black4.png" Width="40"/>
+        <Image x:Key="black6" Source="/images/black6.png" Width="40"/>
+        <Image x:Key="redPen" Source="/images/redPen.png" Width="40"/>
+        <Image x:Key="bluePen" Source="/images/bluePen.png" Width="40"/>
+        <Image x:Key="blackPen" Source="/images/blackPen.png" Width="40"/>
+        <Image x:Key="shape" Source="/images/shape.png" Width="40"/>
+        <Image x:Key="select" Source="/images/select.png" Width="40"/>
+        <Image x:Key="eraser" Source="/images/eraser.png" Width="40"/>
         <Style x:Key="roundButton" TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="BlueViolet"/>
+            <Setter Property="Background" Value="Goldenrod"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Width" Value="50"/>
-            <Setter Property="Height" Value="40"/>
+            <Setter Property="Height" Value="50"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -33,79 +43,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="BurlyWood"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="roundButtonBlue" TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="DarkBlue"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Width" Value="50"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border CornerRadius="20" Background="{TemplateBinding Background}" BorderThickness="1">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="BlueViolet"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="roundButtonRed" TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="Red"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Width" Value="50"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border CornerRadius="20" Background="{TemplateBinding Background}" BorderThickness="1">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="BlueViolet"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="roundButtonBlack" TargetType="{x:Type Button}">
-            <Setter Property="Background" Value="Black"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Width" Value="50"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border CornerRadius="20" Background="{TemplateBinding Background}" BorderThickness="1">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="BlueViolet"/>
+                                <Setter Property="Background" Value="CadetBlue"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -117,7 +55,7 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="IsEnabled" Value="False"/>
             <Setter Property="Width" Value="50"/>
-            <Setter Property="Height" Value="35"/>
+            <Setter Property="Height" Value="50"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="FontWeight" Value="Bold"/>

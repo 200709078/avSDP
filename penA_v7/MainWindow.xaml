@@ -7,7 +7,7 @@
         mc:Ignorable="d"
 Title="penA - made by mADEMatik" Background="AliceBlue" Height="450" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" Closing="wMain_Closing">
     <Grid Name="grdMain">
-        <InkCanvas Name="inkBoard"  MouseUp="inkBoard_MouseUp" MouseDown="inkBoard_MouseDown" MouseMove="inkBoard_MouseMove" />
+        <InkCanvas Name="inkBoard" MouseUp="inkBoard_MouseUp" MouseDown="inkBoard_MouseDown" MouseMove="inkBoard_MouseMove" />
         <StackPanel Name="stckMain" Orientation="Vertical">
             <StackPanel x:Name="stckFiles" Orientation="Horizontal" Margin="10">
             </StackPanel>
@@ -15,18 +15,40 @@ Title="penA - made by mADEMatik" Background="AliceBlue" Height="450" Width="800"
         <Canvas x:Name="canSS" Visibility="Hidden" MouseUp="canSS_MouseUp" Cursor="Cross" MouseMove="canSS_MouseMove" MouseDown="canSS_MouseDown" >
             <Image x:Name="imgSS" Visibility="Hidden" />
         </Canvas>
-        <StackPanel Name="stckDraw" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="10">
-            <Button x:Name="btnMainPage" Style="{StaticResource roundButton}" Content="Main" Click="btnMainPage_Click" />
-            <Button x:Name="btnSize" Style="{StaticResource roundButton}" Content="Size 2" Click="btnSize_Click"/>
-            <Button x:Name="btnColor" Style="{StaticResource roundButtonRed}" Content="Color" Click="btnColor_Click"/>
-            <Button x:Name="btnMode" Style="{StaticResource roundButton}" Content="Pen" Click="btnMode_Click"/>
-            <Button x:Name="btnShape" Style="{StaticResource roundButtonGray}" Content="Line" Click="btnShape_Click"/>
-            <Button x:Name="btnSS" Style="{StaticResource roundButton}" Content="SS" Click="btnSS_Click"/>
-            <Button x:Name="btnPicture" Width="70" Style="{StaticResource roundButton}" Content="PICTURE" Click="btnPicture_Click"/>
-            <Button x:Name="btnUndo" Style="{StaticResource roundButtonGray}" Content="Undo" Click="btnUndo_Click"/>
-            <Button x:Name="btnRedo" Style="{StaticResource roundButtonGray}" Content="Redo" Click="btnRedo_Click"/>
-            <Button x:Name="btnClear" Style="{StaticResource roundButtonGray}" Content="Clear" Click="btnClear_Click"/>
-            <Button x:Name="btnDelete" Style="{StaticResource roundButton}" Visibility="Hidden" Content="Delete" Click="btnDelete_Click"/>
+        <StackPanel Name="stckDraw" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="10" MouseMove="stckDraw_MouseMove" >
+            <Button x:Name="btnMainPage" Style="{StaticResource roundButton}" Click="btnMainPage_Click">
+                <Image Source="/images/ana.png" Width="40"></Image>
+            </Button>
+            <Button x:Name="btnSize" Style="{StaticResource roundButton}" Click="btnSize_Click">
+                <DynamicResource ResourceKey="red2"/>
+            </Button>
+            <Button x:Name="btnColor" Style="{StaticResource roundButton}" Click="btnColor_Click">
+                <DynamicResource ResourceKey="red"/>
+            </Button>
+            <Button x:Name="btnMode" Style="{StaticResource roundButton}" Click="btnMode_Click">
+                <DynamicResource ResourceKey="redPen"/>
+            </Button>
+            <Button x:Name="btnShape" Style="{StaticResource roundButtonGray}" Click="btnShape_Click">
+                <DynamicResource ResourceKey="line"/>
+            </Button>
+            <Button x:Name="btnSS" Style="{StaticResource roundButton}" Click="btnSS_Click">
+                <Image Source="/images/ss.png" Width="40"></Image>
+            </Button>
+            <Button x:Name="btnPicture" Style="{StaticResource roundButton}" Click="btnPicture_Click">
+                <Image Source="/images/picture.png" Width="40"></Image>
+            </Button>
+            <Button x:Name="btnUndo" Style="{StaticResource roundButtonGray}" Click="btnUndo_Click">
+                <Image Source="/images/undo.png" Width="40"></Image>
+            </Button>
+            <Button x:Name="btnRedo" Style="{StaticResource roundButtonGray}" Click="btnRedo_Click">
+                <Image Source="/images/redo.png" Width="40"></Image>
+            </Button>
+            <Button x:Name="btnReset" Style="{StaticResource roundButtonGray}" Click="btnReset_Click">
+                <Image Source="/images/reset.png" Width="40"></Image>
+            </Button>
+            <Button x:Name="btnDelete" Style="{StaticResource roundButton}" Visibility="Hidden" Click="btnDelete_Click">
+                <Image Source="/images/delete.png" Width="40"></Image>
+            </Button>
         </StackPanel>
     </Grid>
 </Window>

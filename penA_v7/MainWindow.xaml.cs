@@ -1,10 +1,8 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,7 +12,6 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace penA_v7
 {
@@ -22,8 +19,6 @@ namespace penA_v7
     {
         public static Stack<Object> stackUndo = new Stack<Object>();
         public static Stack<Object> stackRedo = new Stack<Object>();
-
-
         public static Boolean handle = true;
         public static Boolean draw = false;
         public static Point strtPoint = new Point();
@@ -34,8 +29,8 @@ namespace penA_v7
         public static Rectangle selectionRectangle;
         public static Ellipse elli;
         public static Line line;
+        public static Polygon poly;
         public static Boolean haveDrawing = false;
-
         public static String filesPath = Directory.GetCurrentDirectory() + "\\drawings\\";
         public static String activeFilePath = null;
         public static int filesCount = 0;
@@ -49,6 +44,7 @@ namespace penA_v7
             inkBoard.Visibility = Visibility.Hidden;
             inkBoard.DefaultDrawingAttributes.Color = Colors.Red;
             inkBoard.DefaultDrawingAttributes.Width = 2;
+            inkBoard.DefaultDrawingAttributes.FitToCurve = true;
             if (!Directory.Exists("drawings"))
             {
                 Directory.CreateDirectory("drawings");
@@ -80,7 +76,6 @@ namespace penA_v7
             {
                 btnUndo.Style = (Style)FindResource("roundButtonGray");
             }
-
             if (stackUndo.Count > 0)
             {
                 Object obj = new object();
@@ -109,6 +104,12 @@ namespace penA_v7
                     stackRedo.Push(elli);
                     inkBoard.Children.Remove(elli);
                 }
+                else if (obj.GetType().ToString() == "System.Windows.Shapes.Polygon")
+                {
+                    Polygon poly = obj as Polygon;
+                    stackRedo.Push(poly);
+                    inkBoard.Children.Remove(poly);
+                }
                 else
                 {
                     System.Windows.Controls.Image img = obj as System.Windows.Controls.Image;
@@ -128,7 +129,6 @@ namespace penA_v7
             {
                 btnRedo.Style = (Style)FindResource("roundButtonGray");
             }
-
             if (stackRedo.Count > 0)
             {
                 Object obj = new object();
@@ -157,6 +157,12 @@ namespace penA_v7
                     stackUndo.Push(elli);
                     inkBoard.Children.Add(elli);
                 }
+                else if (obj.GetType().ToString() == "System.Windows.Shapes.Polygon")
+                {
+                    Polygon poly = obj as Polygon;
+                    stackUndo.Push(poly);
+                    inkBoard.Children.Add(poly);
+                }
                 else
                 {
                     System.Windows.Controls.Image img = obj as System.Windows.Controls.Image;
@@ -179,13 +185,13 @@ namespace penA_v7
             inkBoard.UseCustomCursor = true;
             inkBoard.Cursor = Cursors.Pen;
             inkBoard.EditingMode = InkCanvasEditingMode.Ink;
-
-            btnMode.Content = "Pen";
-            btnShape.Content = "Line";
+            inkBoard.DefaultDrawingAttributes.Color = Colors.Red;
+            btnMode.Content = FindResource("redPen");
+            btnShape.Content = FindResource("line");
             btnShape.Style = (Style)FindResource("roundButtonGray");
             btnUndo.Style = (Style)FindResource("roundButtonGray");
             btnRedo.Style = (Style)FindResource("roundButtonGray");
-            btnClear.Style = (Style)FindResource("roundButtonGray");
+            btnReset.Style = (Style)FindResource("roundButtonGray");
             handle = true;
         }
 
@@ -204,7 +210,7 @@ namespace penA_v7
 
             btnUndo.Style = (Style)FindResource("roundButtonGray");
             btnRedo.Style = (Style)FindResource("roundButtonGray");
-            btnClear.Style = (Style)FindResource("roundButtonGray");
+            btnReset.Style = (Style)FindResource("roundButtonGray");
             handle = true;
         }
         public void saveDraw()
@@ -236,9 +242,10 @@ namespace penA_v7
 
             Button btnNew = new Button();
             btnNew.Content = "NEW DRAWING";
-            btnNew.Width = 120;
-            btnNew.Height = 80;
-            btnNew.Style = (Style)FindResource("roundButtonBlue");
+            btnNew.FontSize = 20;
+            btnNew.Width = 240;
+            btnNew.Height = 160;
+            btnNew.Style = (Style)FindResource("roundButton");
             btnNew.Click += btnNewDrawing_Click;
             stckFiles.Children.Add(btnNew);
 
@@ -265,7 +272,7 @@ namespace penA_v7
 
                     System.Windows.Controls.Image img = new System.Windows.Controls.Image();
                     img.Source = renderBitmap;
-                    img.Width = 80;
+                    img.Width = 200;
                     TextBlock textBlock = new TextBlock();
                     textBlock.Text = new FileInfo(file).Name.Substring(0, 13);
                     textBlock.TextAlignment = TextAlignment.Center;
@@ -277,10 +284,10 @@ namespace penA_v7
                     button.Content = stackPanel;
                     button.Margin = new Thickness(5);
                     button.Click += button_Button_Click;
-                    button.Width = 120;
-                    button.Height = 80;
-                    button.Style = (Style)FindResource("roundButtonBlue");
-                    //button.ContextMenu = (ContextMenu)FindResource("MyContextMenu");
+                    button.Width = 240;
+                    button.Height = 160;
+                    button.FontSize = 18;
+                    button.Style = (Style)FindResource("roundButton");
                     stckFiles.Children.Add(button);
                 }
             }
@@ -296,16 +303,15 @@ namespace penA_v7
             btnDelete.Visibility = Visibility.Visible;
             inkBoard.UseCustomCursor = true;
             inkBoard.Cursor = Cursors.Pen;
-            btnMode.Content = "Pen";
-            btnShape.Content = "Line";
-            btnShape.Style = (Style)FindResource("roundButtonGray");
 
             inkBoard.EditingMode = InkCanvasEditingMode.Ink;
             inkBoard.DefaultDrawingAttributes.Color = Colors.Red;
             inkBoard.DefaultDrawingAttributes.Width = 2;
-            btnColor.Style = (Style)FindResource("roundButtonRed");
-            btnSize.Content = "Size 2";
-
+            btnColor.Content = FindResource("red");
+            btnSize.Content = FindResource("red2");
+            btnMode.Content = FindResource("redPen");
+            btnShape.Content = FindResource("line");
+            btnShape.Style = (Style)FindResource("roundButtonGray");
 
             activeFilePath = filesPath + (((e.OriginalSource as Button).Content as StackPanel).Children[1] as TextBlock).Text + ".xaml";
             FileStream fs = File.Open(activeFilePath, FileMode.Open, FileAccess.Read);
@@ -324,7 +330,7 @@ namespace penA_v7
 
             btnUndo.Style = (Style)FindResource("roundButtonGray");
             btnRedo.Style = (Style)FindResource("roundButtonGray");
-            btnClear.Style = (Style)FindResource("roundButtonGray");
+            btnReset.Style = (Style)FindResource("roundButtonGray");
 
             handle = true;
         }
@@ -334,19 +340,68 @@ namespace penA_v7
             handle = false;
             if (inkBoard.DefaultDrawingAttributes.Color == Colors.Red)
             {
-                inkBoard.DefaultDrawingAttributes.Color = Colors.DarkBlue;
-                btnColor.Style = (Style)FindResource("roundButtonBlue");
+                inkBoard.DefaultDrawingAttributes.Color = Colors.Blue;
+                btnColor.Content = FindResource("blue");
+                if (inkBoard.DefaultDrawingAttributes.Width == 2)
+                {
+                    btnSize.Content = FindResource("blue2");
+                }
+                else if (inkBoard.DefaultDrawingAttributes.Width == 4)
+                {
+                    btnSize.Content = FindResource("blue4");
+                }
+                else
+                {
+                    btnSize.Content = FindResource("blue6");
+                }
+                if (inkBoard.EditingMode == InkCanvasEditingMode.Ink)
+                {
+                    btnMode.Content = FindResource("bluePen");
+                }
             }
-            else if (inkBoard.DefaultDrawingAttributes.Color == Colors.DarkBlue)
+            else if (inkBoard.DefaultDrawingAttributes.Color == Colors.Blue)
             {
                 inkBoard.DefaultDrawingAttributes.Color = Colors.Black;
-                btnColor.Style = (Style)FindResource("roundButtonBlack");
+                btnColor.Content = FindResource("black");
+                if (inkBoard.DefaultDrawingAttributes.Width == 2)
+                {
+                    btnSize.Content = FindResource("black2");
+                }
+                else if (inkBoard.DefaultDrawingAttributes.Width == 4)
+                {
+                    btnSize.Content = FindResource("black4");
+                }
+                else
+                {
+                    btnSize.Content = FindResource("black6");
+                }
+                if (inkBoard.EditingMode == InkCanvasEditingMode.Ink)
+                {
+                    btnMode.Content = FindResource("blackPen");
+                }
             }
             else
             {
                 inkBoard.DefaultDrawingAttributes.Color = Colors.Red;
-                btnColor.Style = (Style)FindResource("roundButtonRed");
+                btnColor.Content = FindResource("red");
+                if (inkBoard.DefaultDrawingAttributes.Width == 2)
+                {
+                    btnSize.Content = FindResource("red2");
+                }
+                else if (inkBoard.DefaultDrawingAttributes.Width == 4)
+                {
+                    btnSize.Content = FindResource("red4");
+                }
+                else
+                {
+                    btnSize.Content = FindResource("red6");
+                }
+                if (inkBoard.EditingMode == InkCanvasEditingMode.Ink)
+                {
+                    btnMode.Content = FindResource("redPen");
+                }
             }
+
             handle = true;
         }
 
@@ -356,51 +411,94 @@ namespace penA_v7
             if (inkBoard.DefaultDrawingAttributes.Width == 2)
             {
                 inkBoard.DefaultDrawingAttributes.Width = 4;
-                btnSize.Content = "Size 4";
+                if (btnColor.Content == FindResource("red"))
+                {
+                    btnSize.Content = FindResource("red4");
+                }
+                else if (btnColor.Content == FindResource("blue"))
+                {
+                    btnSize.Content = FindResource("blue4");
+                }
+                else
+                {
+                    btnSize.Content = FindResource("black4");
+                }
             }
             else if (inkBoard.DefaultDrawingAttributes.Width == 4)
             {
                 inkBoard.DefaultDrawingAttributes.Width = 6;
-                btnSize.Content = "Size 6";
+                if (btnColor.Content == FindResource("red"))
+                {
+                    btnSize.Content = FindResource("red6");
+                }
+                else if (btnColor.Content == FindResource("blue"))
+                {
+                    btnSize.Content = FindResource("blue6");
+                }
+                else
+                {
+                    btnSize.Content = FindResource("black6");
+                }
             }
             else
             {
                 inkBoard.DefaultDrawingAttributes.Width = 2;
-                btnSize.Content = "Size 2";
+                if (btnColor.Content == FindResource("red"))
+                {
+                    btnSize.Content = FindResource("red2");
+                }
+                else if (btnColor.Content == FindResource("blue"))
+                {
+                    btnSize.Content = FindResource("blue2");
+                }
+                else
+                {
+                    btnSize.Content = FindResource("black2");
+                }
             }
+
             handle = true;
         }
         private void btnMode_Click(object sender, RoutedEventArgs e)
         {
             handle = false;
-            if (btnMode.Content.Equals("Pen"))
+            if (btnMode.Content == FindResource("redPen") || btnMode.Content == FindResource("bluePen") || btnMode.Content == FindResource("blackPen"))
             {
-                btnMode.Content = "Eraser";
+                btnMode.Content = FindResource("eraser");
                 inkBoard.EditingMode = InkCanvasEditingMode.EraseByStroke;
                 inkBoard.UseCustomCursor = false;
                 btnShape.Style = (Style)FindResource("roundButtonGray");
                 draw = false;
             }
-            else if (btnMode.Content.Equals("Eraser"))
+            else if (btnMode.Content == FindResource("eraser"))
             {
-                btnMode.Content = "Select";
+                btnMode.Content = FindResource("select");
                 inkBoard.EditingMode = InkCanvasEditingMode.Select;
                 inkBoard.UseCustomCursor = false;
                 btnShape.Style = (Style)FindResource("roundButtonGray");
                 draw = false;
             }
-            else if (btnMode.Content.Equals("Select"))
+            else if (btnMode.Content == FindResource("select"))
             {
-                btnMode.Content = "Shape";
+                btnMode.Content = FindResource("shape");
                 inkBoard.EditingMode = InkCanvasEditingMode.None;
-                inkBoard.UseCustomCursor = true;
-                inkBoard.Cursor = Cursors.UpArrow;
                 btnShape.Style = (Style)FindResource("roundButton");
             }
             else
             {
                 inkBoard.EditingMode = InkCanvasEditingMode.Ink;
-                btnMode.Content = "Pen";
+                if (inkBoard.DefaultDrawingAttributes.Color == Colors.Red)
+                {
+                    btnMode.Content = FindResource("redPen");
+                }
+                else if (inkBoard.DefaultDrawingAttributes.Color == Colors.Blue)
+                {
+                    btnMode.Content = FindResource("bluePen");
+                }
+                else
+                {
+                    btnMode.Content = FindResource("blackPen");
+                }
                 inkBoard.UseCustomCursor = true;
                 inkBoard.Cursor = Cursors.Pen;
                 btnShape.Style = (Style)FindResource("roundButtonGray");
@@ -410,18 +508,21 @@ namespace penA_v7
         }
         private void btnShape_Click(object sender, RoutedEventArgs e)
         {
-            handle = false;
-            if (btnShape.Content.Equals("Line"))
+            if (btnShape.Content == FindResource("line"))
             {
-                btnShape.Content = "Rect";
+                btnShape.Content = FindResource("rect");
             }
-            else if (btnShape.Content.Equals("Rect"))
+            else if (btnShape.Content == FindResource("rect"))
             {
-                btnShape.Content = "Circle";
+                btnShape.Content = FindResource("elli");
+            }
+            else if (btnShape.Content == FindResource("elli"))
+            {
+                btnShape.Content = FindResource("poly");
             }
             else
             {
-                btnShape.Content = "Line";
+                btnShape.Content = FindResource("line");
             }
             handle = true;
         }
@@ -438,7 +539,7 @@ namespace penA_v7
                 btnPicture.Visibility = Visibility.Hidden;
                 btnUndo.Visibility = Visibility.Hidden;
                 btnRedo.Visibility = Visibility.Hidden;
-                btnClear.Visibility = Visibility.Hidden;
+                btnReset.Visibility = Visibility.Hidden;
 
                 canSS.Visibility = Visibility.Visible;
                 inkBoard.Visibility = Visibility.Hidden;
@@ -452,7 +553,7 @@ namespace penA_v7
                 this.Show();
             }
         }
-        private void btnClear_Click(object sender, RoutedEventArgs e)
+        private void btnReset_Click(object sender, RoutedEventArgs e)
         {
             handle = false;
             inkBoard.Strokes.Clear();
@@ -461,7 +562,7 @@ namespace penA_v7
             stackRedo.Clear();
 
             btnUndo.Style = (Style)FindResource("roundButtonGray");
-            btnClear.Style = (Style)FindResource("roundButtonGray");
+            btnReset.Style = (Style)FindResource("roundButtonGray");
             btnRedo.Style = (Style)FindResource("roundButtonGray");
             handle = true;
         }
@@ -471,31 +572,37 @@ namespace penA_v7
             haveDrawing = true;
             endPoint = e.GetPosition(inkBoard);
             btnUndo.Style = (Style)FindResource("roundButton");
-            btnClear.Style = (Style)FindResource("roundButton");
+            btnReset.Style = (Style)FindResource("roundButton");
         }
         private void inkBoard_MouseDown(object sender, MouseButtonEventArgs e)
         {
             strtPoint = e.GetPosition(inkBoard);
-            if (btnMode.Content.Equals("Shape"))
+            if (btnMode.Content == FindResource("shape"))
             {
                 draw = true;
-                if (btnShape.Content.Equals("Rect"))
+                if (btnShape.Content == FindResource("rect"))
                 {
                     rect = new Rectangle();
                     inkBoard.Children.Add(rect);
                     stackUndo.Push(rect);
                 }
-                if (btnShape.Content.Equals("Circle"))
+                if (btnShape.Content == FindResource("elli"))
                 {
                     elli = new Ellipse();
                     inkBoard.Children.Add(elli);
                     stackUndo.Push(elli);
                 }
-                if (btnShape.Content.Equals("Line"))
+                if (btnShape.Content == FindResource("line"))
                 {
                     line = new Line();
                     inkBoard.Children.Add(line);
                     stackUndo.Push(line);
+                }
+                if (btnShape.Content == FindResource("poly"))
+                {
+                    poly = new Polygon();
+                    inkBoard.Children.Add(poly);
+                    stackUndo.Push(poly);
                 }
             }
         }
@@ -507,9 +614,9 @@ namespace penA_v7
                 shapeWidth = Math.Abs(endPoint.X - strtPoint.X);
                 shapeHeight = Math.Abs(endPoint.Y - strtPoint.Y);
 
-                if (btnShape.Content.Equals("Rect"))
+                if (btnShape.Content == FindResource("rect"))
                 {
-                    rect.Stroke = btnColor.Background;
+                    rect.Stroke = new SolidColorBrush(inkBoard.DefaultDrawingAttributes.Color);
                     rect.StrokeThickness = inkBoard.DefaultDrawingAttributes.Width;
                     rect.Width = shapeWidth;
                     rect.Height = shapeHeight;
@@ -532,9 +639,9 @@ namespace penA_v7
                     }
                 }
 
-                if (btnShape.Content.Equals("Circle"))
+                if (btnShape.Content == FindResource("elli"))
                 {
-                    elli.Stroke = btnColor.Background;
+                    elli.Stroke = new SolidColorBrush(inkBoard.DefaultDrawingAttributes.Color);
                     elli.StrokeThickness = inkBoard.DefaultDrawingAttributes.Width;
                     elli.Width = shapeWidth;
                     elli.Height = shapeHeight;
@@ -557,14 +664,21 @@ namespace penA_v7
                     }
                 }
 
-                if (btnShape.Content.Equals("Line"))
+                if (btnShape.Content == FindResource("line"))
                 {
-                    line.Stroke = btnColor.Background;
+                    line.Stroke = new SolidColorBrush(inkBoard.DefaultDrawingAttributes.Color);
                     line.StrokeThickness = inkBoard.DefaultDrawingAttributes.Width;
                     line.X1 = strtPoint.X;
                     line.Y1 = strtPoint.Y;
                     line.X2 = endPoint.X;
                     line.Y2 = endPoint.Y;
+                }
+                if (btnShape.Content == FindResource("poly"))
+                {
+                    poly.Stroke = new SolidColorBrush(inkBoard.DefaultDrawingAttributes.Color);
+                    poly.StrokeThickness = inkBoard.DefaultDrawingAttributes.Width;
+                    poly.Points = new PointCollection() { strtPoint, new Point(strtPoint.X, endPoint.Y), endPoint };
+
                 }
             }
         }
@@ -587,7 +701,7 @@ namespace penA_v7
             btnPicture.Visibility = Visibility.Visible;
             btnUndo.Visibility = Visibility.Visible;
             btnRedo.Visibility = Visibility.Visible;
-            btnClear.Visibility = Visibility.Visible;
+            btnReset.Visibility = Visibility.Visible;
             this.WindowStyle = WindowStyle.SingleBorderWindow;
             imgSS.Visibility = Visibility.Hidden;
             imgSS.Source = null;
@@ -617,7 +731,7 @@ namespace penA_v7
             haveDrawing = true;
             stackUndo.Push(cimg);
             btnUndo.Style = (Style)FindResource("roundButton");
-            btnClear.Style = (Style)FindResource("roundButton");
+            btnReset.Style = (Style)FindResource("roundButton");
             canSS.Children.Remove(rect);
         }
         private void canSS_MouseMove(object sender, MouseEventArgs e)
@@ -691,7 +805,7 @@ namespace penA_v7
                 inkBoard.Children.Add(addImage);
                 stackUndo.Push(addImage);
                 btnUndo.Style = (Style)FindResource("roundButton");
-                btnClear.Style = (Style)FindResource("roundButton");
+                btnReset.Style = (Style)FindResource("roundButton");
                 haveDrawing = true;
             }
         }
@@ -713,24 +827,20 @@ namespace penA_v7
                 stackRedo.Clear();
                 refreshFiles();
 
-                //foreach (var c in childrenList)
-                //{
-                //    if (c.GetType().ToString().Equals("System.Windows.Controls.Image"))
-                //    {
-                //        System.Windows.Controls.Image img = c as System.Windows.Controls.Image;
-                //        File.Delete(System.IO.Path.Combine(filesPath + "tempimg\\", img.Source.ToString().Substring(img.Source.ToString().Length - 17, 17)));
-                //    }
-                //}
-
                 stckMain.Visibility = Visibility.Visible;
                 stckDraw.Visibility = Visibility.Hidden;
                 inkBoard.Visibility = Visibility.Hidden;
                 activeFilePath = null;
                 btnUndo.Style = (Style)FindResource("roundButtonGray");
                 btnRedo.Style = (Style)FindResource("roundButtonGray");
-                btnClear.Style = (Style)FindResource("roundButtonGray");
+                btnReset.Style = (Style)FindResource("roundButtonGray");
                 handle = true;
             }
+        }
+
+        private void stckDraw_MouseMove(object sender, MouseEventArgs e)
+        {
+            //MessageBox.Show("ÜSTÜNDEYİM");
         }
     }
 }
